@@ -1,16 +1,73 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState, useCallback } from "react";
+import Navbar from "@/components/Navbar";
+import HeroSection from "@/components/HeroSection";
+import UploadTabs from "@/components/UploadTabs";
+import AnalysisLoader from "@/components/AnalysisLoader";
+import ResultCard from "@/components/ResultCard";
+import HowItWorks from "@/components/HowItWorks";
+import TrustSection from "@/components/TrustSection";
+import Footer from "@/components/Footer";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
-  return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
-  );
+const mockInsights: Record<string, string[]> = {
+  text: [
+    "Uniform sentence structure detected — typical of language models",
+    "Low lexical diversity compared to human-written content",
+    "Unusual consistency in paragraph transitions",
+    "No personal anecdotes or subjective expressions found",
+  ],
+  image: [
+    "Symmetry artifacts detected in facial features",
+    "Inconsistent lighting direction across the scene",
+    "Texture smoothing patterns common in diffusion models",
+    "Metadata lacks typical camera EXIF data",
+  ],
+  audio: [
+    "Spectral analysis shows unnaturally smooth frequency bands",
+    "Breathing patterns are absent or artificially regular",
+    "Micro-pause timing is statistically uniform",
+    "Background noise profile appears synthesized",
+  ],
+  video: [
+    "Temporal inconsistencies detected between frames",
+    "Facial micro-expressions lack natural variance",
+    "Audio-visual lip sync shows minor desynchronization",
+    "Compression artifacts inconsistent with standard encoding",
+  ],
 };
 
-const Index = PlaceholderIndex;
+type Phase = "idle" | "loading" | "result";
 
-export default Index;
+export default function Index() {
+  const [phase, setPhase] = useState<Phase>("idle");
+  const [result, setResult] = useState<{ score: number; type: string; insights: string[] } | null>(null);
+
+  const handleAnalyze = useCallback((type: string) => {
+    setPhase("loading");
+    setTimeout(() => {
+      const score = Math.floor(Math.random() * 60) + 30;
+      setResult({ score, type, insights: mockInsights[type] || mockInsights.text });
+      setPhase("result");
+    }, 3000);
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setPhase("idle");
+    setResult(null);
+    setTimeout(() => {
+      document.getElementById("upload")?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  }, []);
+
+  return (
+    <div className="min-h-screen">
+      <Navbar />
+      <HeroSection />
+      {phase === "idle" && <UploadTabs onAnalyze={handleAnalyze} loading={false} />}
+      {phase === "loading" && <AnalysisLoader />}
+      {phase === "result" && result && <ResultCard result={result} onReset={handleReset} />}
+      <HowItWorks />
+      <TrustSection />
+      <Footer />
+    </div>
+  );
+}
