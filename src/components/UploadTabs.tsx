@@ -4,14 +4,15 @@ import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-import { FileText, Image, Mic, Video, Upload, Loader2 } from "lucide-react";
+import { FileText, Image, Mic, Video, TrendingUp, Upload, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import gsap from "gsap";
 
 const tabConfig = [
-  { value: "text", label: "Text", icon: FileText, formats: "Paste or type any text" },
-  { value: "image", label: "Image", icon: Image, formats: "JPG, PNG, WebP — up to 10MB" },
-  { value: "audio", label: "Audio", icon: Mic, formats: "MP3, WAV, M4A — up to 25MB" },
-  { value: "video", label: "Video", icon: Video, formats: "MP4, MOV, WebM — up to 50MB" },
+  { value: "text", label: "Text", icon: FileText, formats: "Paste or type any text", colorVar: "--content-text" },
+  { value: "image", label: "Image", icon: Image, formats: "JPG, PNG, WebP — up to 10MB", colorVar: "--content-image" },
+  { value: "audio", label: "Audio", icon: Mic, formats: "MP3, WAV, M4A — up to 25MB", colorVar: "--content-audio" },
+  { value: "video", label: "Video", icon: Video, formats: "MP4, MOV, WebM — up to 50MB", colorVar: "--content-video" },
+  { value: "graph", label: "Graph", icon: TrendingUp, formats: "CSV, JSON — up to 5MB", colorVar: "--content-graph" },
 ];
 
 interface Props {
@@ -25,11 +26,30 @@ export default function UploadTabs({ onAnalyze, loading }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const boxRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const cardsRendered = useRef(false);
 
+  // Staggered entry animation
   useEffect(() => {
-    if (!boxRef.current) return;
+    if (!sectionRef.current || cardsRendered.current) return;
+    cardsRendered.current = true;
+    const els = sectionRef.current.querySelectorAll(".upload-stagger");
+    gsap.fromTo(
+      els,
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, stagger: 0.12, duration: 0.6, ease: "power3.out", delay: 0.2 }
+    );
+  }, []);
+
+  // Upload box idle pulse
+  useEffect(() => {
+    if (!boxRef.current || tab === "text") return;
     const tl = gsap.timeline({ repeat: -1, yoyo: true });
-    tl.to(boxRef.current, { boxShadow: "0 0 30px -10px hsl(220 90% 56% / 0.25)", duration: 2, ease: "sine.inOut" });
+    tl.to(boxRef.current, {
+      boxShadow: `0 0 30px -10px hsl(var(${tabConfig.find(t => t.value === tab)?.colorVar}) / 0.25)`,
+      duration: 2,
+      ease: "sine.inOut",
+    });
     return () => { tl.kill(); };
   }, [tab]);
 
@@ -48,16 +68,18 @@ export default function UploadTabs({ onAnalyze, loading }: Props) {
     else if (file) onAnalyze(tab, file);
   };
 
+  const activeColor = tabConfig.find(t => t.value === tab)?.colorVar || "--content-text";
+
   return (
-    <section id="upload" className="py-24 px-6">
-      <div className="max-w-2xl mx-auto text-center mb-10">
+    <section id="upload" className="py-24 px-6" ref={sectionRef}>
+      <div className="max-w-2xl mx-auto text-center mb-10 upload-stagger">
         <h2 className="font-display text-3xl md:text-4xl font-bold">Upload Your Content</h2>
         <p className="mt-3 text-muted-foreground">Select the content type and upload or paste to begin analysis.</p>
       </div>
 
-      <Card className="max-w-2xl mx-auto glass rounded-2xl p-6">
+      <Card className="max-w-2xl mx-auto glass rounded-2xl p-6 upload-stagger">
         <Tabs value={tab} onValueChange={(v) => { setTab(v); setFile(null); setText(""); }}>
-          <TabsList className="w-full grid grid-cols-4 bg-secondary/50 rounded-xl">
+          <TabsList className="w-full grid grid-cols-5 bg-secondary/10 rounded-xl">
             {tabConfig.map((t) => (
               <TabsTrigger
                 key={t.value}
@@ -73,10 +95,10 @@ export default function UploadTabs({ onAnalyze, loading }: Props) {
           <AnimatePresence mode="wait">
             <motion.div
               key={tab}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
               className="mt-6"
             >
               {tab === "text" ? (
@@ -87,18 +109,32 @@ export default function UploadTabs({ onAnalyze, loading }: Props) {
                   className="min-h-[160px] bg-secondary/30 border-border/50 rounded-xl resize-none"
                 />
               ) : (
-                <div
+                <motion.div
                   ref={boxRef}
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                   onDragLeave={() => setDragOver(false)}
                   onDrop={handleDrop}
-                  className={`relative flex flex-col items-center justify-center gap-3 min-h-[160px] rounded-xl border-2 border-dashed transition-all duration-300 ${
-                    dragOver ? "border-primary scale-[1.02] bg-primary/5" : "border-border/50 bg-secondary/20"
+                  animate={dragOver ? { scale: 1.02 } : { scale: 1 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                  className={`relative flex flex-col items-center justify-center gap-3 min-h-[160px] rounded-xl border-2 border-dashed transition-colors duration-300 ${
+                    dragOver ? "border-primary bg-primary/5" : "border-border/50 bg-secondary/20"
                   }`}
                 >
-                  <Upload className="w-8 h-8 text-muted-foreground" />
+                  <motion.div
+                    animate={dragOver ? { y: -4, scale: 1.1 } : { y: 0, scale: 1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                  >
+                    <Upload className="w-8 h-8 text-muted-foreground" />
+                  </motion.div>
                   {file ? (
-                    <p className="text-sm font-medium text-foreground">{file.name}</p>
+                    <motion.div
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="flex items-center gap-2"
+                    >
+                      <CheckCircle className="w-4 h-4" style={{ color: `hsl(var(${activeColor}))` }} />
+                      <p className="text-sm font-medium text-foreground">{file.name}</p>
+                    </motion.div>
                   ) : (
                     <>
                       <p className="text-sm text-muted-foreground">
@@ -108,7 +144,12 @@ export default function UploadTabs({ onAnalyze, loading }: Props) {
                           <input
                             type="file"
                             className="hidden"
-                            accept={tab === "image" ? "image/*" : tab === "audio" ? "audio/*" : "video/*"}
+                            accept={
+                              tab === "image" ? "image/*" :
+                              tab === "audio" ? "audio/*" :
+                              tab === "video" ? "video/*" :
+                              ".csv,.json"
+                            }
                             onChange={(e) => setFile(e.target.files?.[0] || null)}
                           />
                         </label>
@@ -118,7 +159,7 @@ export default function UploadTabs({ onAnalyze, loading }: Props) {
                       </p>
                     </>
                   )}
-                </div>
+                </motion.div>
               )}
 
               <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="mt-5">

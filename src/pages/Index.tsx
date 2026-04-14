@@ -33,6 +33,12 @@ const mockInsights: Record<string, string[]> = {
     "Audio-visual lip sync shows minor desynchronization",
     "Compression artifacts inconsistent with standard encoding",
   ],
+  graph: [
+    "Data distribution follows unnaturally smooth curves",
+    "Statistical outliers are absent — unlikely in real datasets",
+    "Axis labels and formatting match common AI chart generators",
+    "Temporal patterns lack expected seasonal variance",
+  ],
 };
 
 type Phase = "idle" | "loading" | "result";
