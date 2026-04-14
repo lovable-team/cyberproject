@@ -51,6 +51,13 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        content: {
+          text: "hsl(var(--content-text))",
+          audio: "hsl(var(--content-audio))",
+          video: "hsl(var(--content-video))",
+          image: "hsl(var(--content-image))",
+          graph: "hsl(var(--content-graph))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -92,6 +99,10 @@ export default {
           "0%, 100%": { boxShadow: "0 0 20px -5px hsl(var(--glow-primary) / 0.3)" },
           "50%": { boxShadow: "0 0 30px -5px hsl(var(--glow-primary) / 0.5)" },
         },
+        "orbit": {
+          "0%": { transform: "rotate(0deg) translateX(var(--orbit-radius)) rotate(0deg)" },
+          "100%": { transform: "rotate(360deg) translateX(var(--orbit-radius)) rotate(-360deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -100,6 +111,7 @@ export default {
         shimmer: "shimmer 2s linear infinite",
         float: "float 3s ease-in-out infinite",
         pulse_glow: "pulse_glow 2s ease-in-out infinite",
+        "orbit": "orbit var(--orbit-duration, 8s) linear infinite",
       },
     },
   },
