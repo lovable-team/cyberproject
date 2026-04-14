@@ -4,7 +4,7 @@ import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
-import { FileText, Image, Mic, Video, TrendingUp, Upload, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { FileText, Image, Mic, Video, Upload, Loader2, CheckCircle } from "lucide-react";
 import gsap from "gsap";
 
 const tabConfig = [
@@ -12,7 +12,6 @@ const tabConfig = [
   { value: "image", label: "Image", icon: Image, formats: "JPG, PNG, WebP — up to 10MB", colorVar: "--content-image" },
   { value: "audio", label: "Audio", icon: Mic, formats: "MP3, WAV, M4A — up to 25MB", colorVar: "--content-audio" },
   { value: "video", label: "Video", icon: Video, formats: "MP4, MOV, WebM — up to 50MB", colorVar: "--content-video" },
-  { value: "graph", label: "Graph", icon: TrendingUp, formats: "CSV, JSON — up to 5MB", colorVar: "--content-graph" },
 ];
 
 interface Props {
@@ -29,7 +28,6 @@ export default function UploadTabs({ onAnalyze, loading }: Props) {
   const sectionRef = useRef<HTMLElement>(null);
   const cardsRendered = useRef(false);
 
-  // Staggered entry animation
   useEffect(() => {
     if (!sectionRef.current || cardsRendered.current) return;
     cardsRendered.current = true;
@@ -41,12 +39,17 @@ export default function UploadTabs({ onAnalyze, loading }: Props) {
     );
   }, []);
 
-  // Upload box idle pulse
   useEffect(() => {
     if (!boxRef.current || tab === "text") return;
+    const colorMap: Record<string, string> = {
+      image: "hsla(217, 91%, 60%, 0.25)",
+      audio: "hsla(160, 84%, 39%, 0.25)",
+      video: "hsla(0, 84%, 60%, 0.25)",
+    };
+    const glowColor = colorMap[tab] || "hsla(239, 84%, 67%, 0.25)";
     const tl = gsap.timeline({ repeat: -1, yoyo: true });
     tl.to(boxRef.current, {
-      boxShadow: `0 0 30px -10px hsl(var(${tabConfig.find(t => t.value === tab)?.colorVar}) / 0.25)`,
+      boxShadow: `0 0 30px -10px ${glowColor}`,
       duration: 2,
       ease: "sine.inOut",
     });
@@ -79,7 +82,7 @@ export default function UploadTabs({ onAnalyze, loading }: Props) {
 
       <Card className="max-w-2xl mx-auto glass rounded-2xl p-6 upload-stagger">
         <Tabs value={tab} onValueChange={(v) => { setTab(v); setFile(null); setText(""); }}>
-          <TabsList className="w-full grid grid-cols-5 bg-secondary/10 rounded-xl">
+          <TabsList className="w-full grid grid-cols-4 bg-secondary/10 rounded-xl">
             {tabConfig.map((t) => (
               <TabsTrigger
                 key={t.value}
@@ -147,8 +150,7 @@ export default function UploadTabs({ onAnalyze, loading }: Props) {
                             accept={
                               tab === "image" ? "image/*" :
                               tab === "audio" ? "audio/*" :
-                              tab === "video" ? "video/*" :
-                              ".csv,.json"
+                              "video/*"
                             }
                             onChange={(e) => setFile(e.target.files?.[0] || null)}
                           />

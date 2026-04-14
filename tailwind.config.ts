@@ -56,7 +56,6 @@ export default {
           audio: "hsl(var(--content-audio))",
           video: "hsl(var(--content-video))",
           image: "hsl(var(--content-image))",
-          graph: "hsl(var(--content-graph))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
