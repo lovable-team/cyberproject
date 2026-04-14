@@ -1,26 +1,26 @@
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import gsap from "gsap";
 import { Button } from "./ui/button";
-import { ArrowDown, FileText, Mic, Video, Image, TrendingUp } from "lucide-react";
+import { ArrowDown, FileText, Mic, Video, Image } from "lucide-react";
 
 const contentElements = [
   { icon: FileText, label: "Text", color: "var(--content-text)", angle: 0, delay: 0 },
-  { icon: Mic, label: "Audio", color: "var(--content-audio)", angle: 72, delay: 0.12 },
-  { icon: Video, label: "Video", color: "var(--content-video)", angle: 144, delay: 0.24 },
-  { icon: Image, label: "Image", color: "var(--content-image)", angle: 216, delay: 0.36 },
-  { icon: TrendingUp, label: "Graph", color: "var(--content-graph)", angle: 288, delay: 0.48 },
+  { icon: Mic, label: "Audio", color: "var(--content-audio)", angle: 90, delay: 0.12 },
+  { icon: Video, label: "Video", color: "var(--content-video)", angle: 180, delay: 0.24 },
+  { icon: Image, label: "Image", color: "var(--content-image)", angle: 270, delay: 0.36 },
 ];
 
 export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const orbRef = useRef<HTMLDivElement>(null);
   const elementsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Staggered text entrance
     const els = containerRef.current.querySelectorAll(".hero-anim");
     gsap.fromTo(
       els,
@@ -28,7 +28,6 @@ export default function HeroSection() {
       { opacity: 1, y: 0, stagger: 0.15, duration: 0.8, ease: "power3.out" }
     );
 
-    // Orb pulse
     if (orbRef.current) {
       gsap.to(orbRef.current, {
         scale: 1.05,
@@ -39,7 +38,6 @@ export default function HeroSection() {
       });
     }
 
-    // Animate orbiting elements: fly in then orbit
     elementsRef.current.forEach((el, i) => {
       if (!el) return;
       const cfg = contentElements[i];
@@ -48,10 +46,8 @@ export default function HeroSection() {
       const targetX = Math.cos(rad) * orbitRadius;
       const targetY = Math.sin(rad) * orbitRadius;
 
-      // Start from far away in the element's direction
       gsap.set(el, { opacity: 0, x: targetX * 3, y: targetY * 3, scale: 0.3 });
 
-      // Fly in
       gsap.to(el, {
         opacity: 1,
         x: targetX,
@@ -62,7 +58,6 @@ export default function HeroSection() {
         ease: "power3.out",
       });
 
-      // Continuous slow orbit after settling
       gsap.to(el, {
         rotation: 360,
         duration: 20 + i * 2,
@@ -75,27 +70,19 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section
-      id="home"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-    >
-      {/* Animated background */}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 bg-grid opacity-30" />
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-float" />
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/10 rounded-full blur-3xl animate-float" style={{ animationDelay: "1.5s" }} />
 
       <div ref={containerRef} className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-        {/* Orbiting content elements + central orb */}
         <div className="relative w-72 h-72 mx-auto mb-10">
-          {/* Central orb */}
           <div
             ref={orbRef}
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-gradient-to-br from-primary to-secondary orb-glow"
           />
-          {/* Orbit ring */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] rounded-full border border-border/20" />
 
-          {/* Content type icons */}
           {contentElements.map((item, i) => (
             <div
               key={item.label}
@@ -115,22 +102,20 @@ export default function HeroSection() {
 
         <div className="hero-anim inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-xs font-medium text-muted-foreground mb-6">
           <span className="w-2 h-2 rounded-full bg-content-audio animate-pulse" />
-          Universal Content Processing
+          AI-Powered Authenticity Detection
         </div>
         <h1 className="hero-anim font-display text-5xl md:text-7xl font-bold tracking-tight leading-tight">
           Is it <span className="text-gradient">AI</span> or{" "}
           <span className="text-gradient">Real</span>?
         </h1>
         <p className="hero-anim mt-6 text-lg md:text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed">
-          Upload any content — text, image, audio, video, or data — and our advanced AI determines its authenticity in seconds.
+          Upload any content — text, image, audio, or video — and our advanced AI determines its authenticity in seconds.
         </p>
         <div className="hero-anim mt-8 flex flex-col sm:flex-row gap-4 justify-center">
           <Button
             size="lg"
             className="text-base glow-primary"
-            onClick={() =>
-              document.getElementById("upload")?.scrollIntoView({ behavior: "smooth" })
-            }
+            onClick={() => navigate("/upload")}
           >
             Analyze Content
           </Button>
@@ -138,9 +123,7 @@ export default function HeroSection() {
             variant="outline"
             size="lg"
             className="text-base glass"
-            onClick={() =>
-              document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" })
-            }
+            onClick={() => navigate("/how-it-works")}
           >
             Learn How
           </Button>

@@ -1,14 +1,13 @@
 import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
-import { FileText, Mic, Video, Image, TrendingUp } from "lucide-react";
+import { FileText, Mic, Video, Image } from "lucide-react";
 
 const floatingIcons = [
   { icon: FileText, colorVar: "--content-text", x: -80, y: -40 },
   { icon: Mic, colorVar: "--content-audio", x: 80, y: -30 },
   { icon: Video, colorVar: "--content-video", x: -60, y: 50 },
   { icon: Image, colorVar: "--content-image", x: 70, y: 60 },
-  { icon: TrendingUp, colorVar: "--content-graph", x: 0, y: -70 },
 ];
 
 export default function AnalysisLoader() {
@@ -23,7 +22,6 @@ export default function AnalysisLoader() {
       { width: "90%", duration: 3, ease: "power2.inOut" }
     );
 
-    // Floating icons converge to center
     iconsRef.current.forEach((el, i) => {
       if (!el) return;
       const cfg = floatingIcons[i];
@@ -49,7 +47,6 @@ export default function AnalysisLoader() {
         animate={{ opacity: 1, scale: 1 }}
         className="max-w-md mx-auto text-center glass rounded-2xl p-10 relative overflow-hidden"
       >
-        {/* Floating converging icons */}
         <div className="relative w-16 h-16 mx-auto mb-6">
           {floatingIcons.map((item, i) => (
             <div
