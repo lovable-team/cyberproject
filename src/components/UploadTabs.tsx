@@ -41,10 +41,15 @@ export default function UploadTabs({ onAnalyze, loading }: Props) {
 
   useEffect(() => {
     if (!boxRef.current || tab === "text") return;
-    const currentColor = tabConfig.find(t => t.value === tab)?.colorVar;
+    const colorMap: Record<string, string> = {
+      image: "hsla(217, 91%, 60%, 0.25)",
+      audio: "hsla(160, 84%, 39%, 0.25)",
+      video: "hsla(0, 84%, 60%, 0.25)",
+    };
+    const glowColor = colorMap[tab] || "hsla(239, 84%, 67%, 0.25)";
     const tl = gsap.timeline({ repeat: -1, yoyo: true });
     tl.to(boxRef.current, {
-      boxShadow: `0 0 30px -10px hsl(var(${currentColor}) / 0.25)`,
+      boxShadow: `0 0 30px -10px ${glowColor}`,
       duration: 2,
       ease: "sine.inOut",
     });
